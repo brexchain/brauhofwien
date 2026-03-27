@@ -1,168 +1,211 @@
 <!DOCTYPE html>
-<html lang="de" class="scroll-smooth">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Brauhof Wien | Digital Reborn 2026</title>
+    <title>Brauhof Wien | THE 2026 EXPERIENCE</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-
-        :root {
-            --gold: #f4be1d;
-            --dark: #050505;
-            --white: #ffffff;
-            --red: #ff4d4d;
-            --pappe: url('https://www.transparenttextures.com/patterns/paper.png');
-        }
+        :root { --gold: #f4be1d; --dark: #050505; --white: #ffffff; --pappe: url('https://www.transparenttextures.com/patterns/paper.png'); }
+        body.light-mode { --dark: #fdfaf5; --white: #1a1510; --gold: #c6934b; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--dark); color: var(--white); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { background: var(--dark); color: var(--white); font-family: 'Inter', sans-serif; overflow-x: hidden; transition: 0.5s; }
+        body::before { content: ""; position: fixed; inset: 0; background-image: var(--pappe); opacity: 0.3; pointer-events: none; z-index: 50; }
 
-        /* --- HEADER --- */
-        header { position: fixed; top: 0; width: 100%; z-index: 100; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(5,5,5,0.95), transparent); }
-        .logo { background: var(--white); color: var(--dark); padding: 8px 12px; font-weight: 900; font-size: 1.1rem; text-decoration: none; border-radius: 4px; }
-        .live-badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 50px; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(15px); }
-        .pulse { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 10px var(--gold); animation: pulse 2s infinite; }
+        /* HEADER */
+        header { position: fixed; top: 0; width: 100%; z-index: 100; padding: 15px 0; background: linear-gradient(to bottom, var(--dark), transparent); backdrop-filter: blur(10px); display: flex; justify-content: center; }
+        .h-wrap { width: 100%; max-width: 1200px; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { background: var(--white); color: var(--dark); padding: 8px 12px; font-weight: 900; text-decoration: none; border-radius: 4px; font-size: 0.9rem; }
+        .switcher { display: flex; gap: 5px; background: rgba(128,128,128,0.1); padding: 4px; border-radius: 8px; }
+        .sw-btn { text-decoration: none; padding: 6px 12px; font-size: 0.6rem; font-weight: 900; color: var(--white); opacity: 0.4; border-radius: 5px; }
+        .sw-btn.active { background: var(--gold); color: #000; opacity: 1; }
 
-        /* --- SECTIONS --- */
-        section { min-height: 100vh; padding: 120px 20px 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        h2 { font-size: 3.2rem; text-transform: uppercase; font-weight: 900; line-height: 0.85; margin-bottom: 25px; italic: true; text-align: center; }
-        .gold-text { color: var(--gold); }
-        p.lead { max-width: 500px; text-align: center; opacity: 0.7; font-size: 0.9rem; line-height: 1.6; margin-bottom: 40px; }
+        /* PARALLAX HERO */
+        .parallax-hero { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; perspective: 1000px; overflow: hidden; }
+        .hero-layer { transition: transform 0.1s ease-out; pointer-events: none; }
+        .hero-title { font-size: clamp(4rem, 15vw, 10rem); font-weight: 900; line-height: 0.8; text-align: center; z-index: 2; position: relative; }
 
-        /* --- SWIPE GALLERY --- */
-        .gallery-container { width: 100%; max-width: 550px; position: relative; border-radius: 30px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.6); }
+        /* SECTIONS */
+        section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 100px 20px; max-width: 1200px; margin: 0 auto; position: relative; }
+        h2 { font-size: clamp(3rem, 10vw, 7rem); font-weight: 900; line-height: 0.8; text-transform: uppercase; margin-bottom: 20px; }
+        .gold { color: var(--gold); }
+
+        /* INTERACTIVE TAP SEKTION (NEW FEATURE) */
+        .tap-unlock { background: rgba(244, 190, 29, 0.05); border: 2px dashed var(--gold); border-radius: 40px; padding: 40px; width: 100%; max-width: 400px; margin: 40px 0; cursor: pointer; position: relative; overflow: hidden; }
+        .tap-progress { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: var(--gold); opacity: 0.2; transition: height 0.1s; }
+
+        /* GALLERY SLIDER */
+        .g-container { width: 100%; max-width: 500px; border-radius: 30px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.4); margin: 30px 0; }
         .slider { display: flex; overflow-x: auto; snap-type: x mandatory; scrollbar-width: none; }
-        .slider::-webkit-scrollbar { display: none; }
-        .slide { min-width: 100%; aspect-ratio: 4/5; snap-align: center; position: relative; }
+        .slide { min-width: 100%; aspect-ratio: 4/5; snap-align: center; }
         .slide img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- AGGRESSIVE CTA ELEMENTS --- */
-        .scarcity-bar { width: 100%; max-width: 320px; height: 4px; background: #222; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .scarcity-fill { width: 85%; height: 100%; background: var(--red); animation: slideIn 2s ease; }
-        
-        .btn-action { background: var(--gold); color: #000; padding: 20px 40px; border-radius: 18px; font-weight: 900; text-transform: uppercase; border: none; cursor: pointer; transition: 0.3s; width: 100%; max-width: 320px; font-size: 0.9rem; letter-spacing: -0.5px; }
-        .btn-action:hover { transform: scale(1.03); background: var(--white); }
-        .btn-sub { font-size: 10px; opacity: 0.6; display: block; margin-top: 5px; font-weight: 400; }
+        /* THE ROAST */
+        .roast { background: var(--gold); color: #000; padding: 100px 20px; width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; }
+        .roast-inner { max-width: 800px; margin: 0 auto; font-weight: 900; text-transform: uppercase; text-align: left; }
 
-        /* --- ZAPFHAHN --- */
-        .tap-area { background: #111; padding: 40px; border-radius: 40px; border: 1px solid #222; text-align: center; width: 100%; max-width: 320px; }
-        .tap-handle { width: 70px; height: 140px; background: #222; margin: 20px auto; border-radius: 0 0 25px 25px; position: relative; overflow: hidden; cursor: pointer; border: 4px solid #333; }
-        .beer-fill { position: absolute; bottom: 0; width: 100%; background: var(--gold); transition: height 0.4s ease; }
+        /* TINDER CARDS */
+        .tinder-box { position: relative; width: 320px; height: 420px; margin: 40px auto; perspective: 1000px; }
+        .t-card { position: absolute; width: 100%; height: 100%; border-radius: 25px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); cursor: grab; background: #fff; transform-origin: center bottom; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; z-index: 10; }
+        .t-card img { width: 100%; height: 85%; object-fit: cover; pointer-events: none; }
+        .t-card-info { height: 15%; display: flex; align-items: center; justify-content: center; background: #fff; color: #000; font-weight: 900; font-size: 0.8rem; }
 
-        /* --- MODAL --- */
-        #bookingModal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.92); opacity: 0; pointer-events: none; transition: 0.4s; }
-        #bookingModal.active { opacity: 1; pointer-events: auto; }
-        .modal-sheet { width: 100%; max-width: 500px; background: #fff; color: #000; padding: 40px 30px; border-radius: 40px 40px 0 0; background-image: var(--pappe); transform: translateY(100%); transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
-        #bookingModal.active .modal-sheet { transform: translateY(0); }
+        /* KRUG REWARD */
+        #reward { position: fixed; bottom: 120px; right: 20px; width: 140px; height: 180px; background: #fff; color: #000; border-radius: 15px; transform: translateX(250%) rotate(20deg); transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1); z-index: 200; box-shadow: 0 25px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px 10px; }
+        #reward::after { content: ""; position: absolute; right: -25px; top: 40px; width: 40px; height: 90px; border: 8px solid #fff; border-left: none; border-radius: 0 40px 40px 0; }
+        #reward.active { transform: translateX(0) rotate(0deg); }
 
-        /* --- FEEDBACK --- */
-        .feedback-bar { position: fixed; bottom: 0; width: 100%; background: var(--dark); border-top: 1px solid rgba(255,255,255,0.1); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 90; }
+        /* BUTTONS */
+        .btn { background: var(--gold); color: #000; padding: 20px 40px; border-radius: 15px; font-weight: 900; text-transform: uppercase; border: none; cursor: pointer; margin-top: 20px; font-size: 0.9rem; transition: 0.3s; width: 100%; max-width: 350px; }
+        .btn-locked { background: var(--white); opacity: 0.2; pointer-events: none; }
 
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        @keyframes slideIn { from { width: 0%; } to { width: 85%; } }
+        /* FOOTER */
+        footer { padding: 100px 20px; border-top: 1px solid rgba(128,128,128,0.2); background: rgba(0,0,0,0.05); }
+        .manifest { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; max-width: 1200px; margin: 40px auto; text-align: left; }
+
+        /* FIXED INTERFACE */
+        .f-bar { position: fixed; bottom: 0; width: 100%; background: var(--dark); padding: 20px; border-top: 1px solid rgba(128,128,128,0.2); z-index: 150; display: flex; justify-content: center; }
+        .p { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 1000; opacity: 0; }
     </style>
 </head>
-<body>
+<body onmousemove="parallax(event)">
 
-    <header>
+<header>
+    <div class="h-wrap">
         <a href="#" class="logo">BH26</a>
-        <div class="live-badge">
-            <div class="pulse"></div>
-            <div style="font-size: 0.55rem; font-weight: 900;">
-                <span style="color:var(--gold)">STATUS</span><br>85% AUSGEBUCHT
-            </div>
+        <div class="switcher">
+            <button onclick="toggleAtmo()" class="atmo" id="atmoBtn" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:5px 10px; border-radius:20px; font-size:0.6rem; font-weight:900; cursor:pointer;">☕ MELANGE</button>
+            <a href="#" class="sw-btn active">EXPERIENCE</a>
+            <a href="https://brauhof-wien.at" class="sw-btn">ALT</a>
         </div>
-    </header>
+    </div>
+</header>
 
-    <section>
-        <h1 style="font-size: 4rem; font-weight: 900; line-height: 0.8; text-align: center;">BRAUHOF<br><span class="gold-text">WIEN</span></h1>
-        <p style="margin-top: 20px; letter-spacing: 4px; font-weight: 900; font-size: 0.6rem; opacity: 0.4;">KEIN BLA-BLA. NUR BIER.</p>
-    </section>
+<div class="parallax-hero" id="hero">
+    <div class="hero-layer" data-speed="2" style="position: absolute; font-size: 20rem; opacity: 0.05; font-weight: 900; color: var(--gold); white-space: nowrap;">WIEN WIEN WIEN</div>
+    <h1 class="hero-title hero-layer" data-speed="-1">BRAUHOF<br><span class="gold">WIEN</span></h1>
+    <p class="hero-layer" data-speed="1" style="margin-top: 20px; letter-spacing: 10px; font-weight: 900; opacity: 0.4;">DIGITAL REBORN 2026</p>
+</div>
 
-    <section id="essen">
-        <h2>WIENER<br><span class="gold-text">KÜCHE</span></h2>
-        <div class="gallery-container">
+<section>
+    <h2>HUNGER?<br><span class="gold">DRÜCK MICH</span></h2>
+    <div class="tap-unlock" onmousedown="startTap()" onmouseup="endTap()" ontouchstart="startTap()" ontouchend="endTap()">
+        <div id="tapProgress" class="tap-progress"></div>
+        <p id="tapText" style="font-weight: 900; font-size: 0.8rem; position: relative; z-index: 2;">HALTEN ZUM ZAPFEN</p>
+    </div>
+    <div id="lockedContent" style="display: none; width: 100%;">
+        <div class="g-container" style="margin: 0 auto;">
             <div class="slider">
                 <div class="slide"><img src="https://brauhof-wien.at/wp-content/uploads/2021/05/Brauhof-Wien-Speisen-1.jpg"></div>
                 <div class="slide"><img src="https://brauhof-wien.at/wp-content/uploads/2021/05/Brauhof-Wien-Speisen-2.jpg"></div>
             </div>
         </div>
-        <div style="margin-top: 30px; width: 100%; max-width: 320px;">
-            <button onclick="openBooking('Tisch')" class="btn-action">LETZTEN TISCH SICHERN<span class="btn-sub">AKTUELL NUR NOCH 3 VERFÜGBAR</span></button>
-            <div class="scarcity-bar"><div class="scarcity-fill"></div></div>
-        </div>
-    </section>
+        <button class="btn">SPEISEKARTE 2026</button>
+    </div>
+</section>
 
-    <section id="seminare" style="background: #080808;">
-        <h2>TAGEN OHNE<br><span class="gold-text">BLA-BLA</span></h2>
-        <div class="gallery-container">
-            <div class="slider">
-                <div class="slide"><img src="https://brauhof-wien.at/wp-content/uploads/2021/05/Brauhof-Wien-Seminar-1.jpg"></div>
-                <div class="slide"><img src="https://brauhof-wien.at/wp-content/uploads/2021/05/Brauhof-Wien-Seminar-2.jpg"></div>
-            </div>
-        </div>
-        <button onclick="openBooking('Seminar')" class="btn-action" style="margin-top: 30px; background: var(--white);">
-            🚀 SCHLACHTPLAN ERSTELLEN
-            <span class="btn-sub">IN 30 SEK. ZUM ANGEBOT</span>
-        </button>
-    </section>
+<div class="roast">
+    <div class="roast-inner">
+        <p style="font-size: 0.7rem; opacity: 0.6; margin-bottom: 15px;">21DEV AUDIT</p>
+        <p style="font-size: 2rem; line-height: 1.1;">DIE ALTE WEBSITE WAR EINE DIGITALE BREMSE. WIR HABEN DAS VERTRAUEN DURCH INTERAKTION ERSETZT. WER SPIELT, DER BLEIBT. WER BLEIBT, DER BUCHT.</p>
+    </div>
+</div>
 
-    <section id="booking">
-        <h2>ZIMMER<br><span class="gold-text">ZAPFEN</span></h2>
-        <div class="tap-area">
-            <div class="tap-handle" onclick="fillBeer()">
-                <div id="beerFill" class="beer-fill" style="height: 0%;"></div>
-            </div>
-            <p id="tapText" style="font-size: 0.6rem; font-weight: 900; opacity: 0.4;">TAPPEN ZUM RESERVIEREN</p>
-        </div>
-    </section>
+<section id="rooms">
+    <h2>WIE<br><span class="gold">SCHLÄFST DU?</span></h2>
+    <p style="font-size: 0.7rem; font-weight: 900; opacity: 0.5; margin-bottom: 20px;">SWIPE DEIN FAVORIT FÜR EIN GRATIS BIER</p>
+    <div class="tinder-box" id="tinderBox"></div>
+    <button id="bookBtn" class="btn btn-locked">JETZT ZIMMER ZAPFEN</button>
+</section>
 
-    <div id="bookingModal">
-        <div class="modal-sheet">
-            <h3 style="font-weight: 900; font-size: 2rem; line-height: 0.9; margin-bottom: 30px;">JETZT <span class="gold-text">FIXIEREN</span>.</h3>
-            <input type="text" placeholder="DEIN NAME" style="width: 100%; padding: 18px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 10px; font-weight: 900; outline: none;">
-            <input type="email" placeholder="EMAIL" style="width: 100%; padding: 18px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 25px; font-weight: 900; outline: none;">
-            <button onclick="location.reload()" class="btn-action" style="background: #000; color: #fff; width: 100%;">ANFRAGE ABSCHICKEN</button>
-            <button onclick="closeModal()" style="width: 100%; background: none; border: none; font-weight: 900; font-size: 0.6rem; margin-top: 20px; cursor: pointer; opacity: 0.3;">ABBRECHEN</button>
+<footer>
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+        <div class="manifest">
+            <div class="m-item"><h4>STAY LIVE</h4><p>Echte Daten. Echte Vektoren. Keine PDF-Leichen mehr.</p></div>
+            <div class="m-item"><h4>SCALABLE</h4><p>Von iPhone bis 8K Monitor – das Design atmet mit.</p></div>
+            <div class="m-item"><h4>21DEV</h4><p>Die Zukunft des Wiener Gastgewerbes ist digital.</p></div>
         </div>
     </div>
+</footer>
 
-    <div class="feedback-bar">
-        <div style="font-size: 0.6rem; font-weight: 900;">
-            <span style="color:var(--gold)">🎁 AKTION</span><br>ANSTOẞEN & 1. BIER GRATIS
-        </div>
-        <button class="btn-action" style="padding: 10px 20px; width: auto; font-size: 0.6rem;" onclick="cheers()">🍻 DIGITAL ANSTOẞEN</button>
-    </div>
+<div id="reward">
+    <div style="font-size: 0.9rem; font-weight: 900;">1. Seidl<br><span class="gold">GRATIS</span></div>
+    <div style="width: 100%; border-top: 2px dashed #eee; margin: 10px 0;"></div>
+    <div style="font-weight: 900; font-size: 0.8rem;">CODE: BH2026</div>
+</div>
 
-    <script>
-        let tapLevel = 0;
+<div class="f-bar">
+    <button class="btn" style="margin:0; width: auto; padding: 12px 30px; font-size: 0.7rem;" onclick="cheers(event)">🍻 ANSTOẞEN & SPAREN</button>
+</div>
 
-        function fillBeer() {
-            if (tapLevel < 100) {
-                tapLevel += 20;
-                document.getElementById('beerFill').style.height = tapLevel + '%';
-                if(navigator.vibrate) navigator.vibrate(40);
-                if (tapLevel >= 100) {
-                    setTimeout(() => openBooking('Zimmer'), 500);
-                }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<script>
+    // PARALLAX EFFECT
+    function parallax(e) {
+        document.querySelectorAll(".hero-layer").forEach(layer => {
+            const speed = layer.getAttribute('data-speed');
+            const x = (window.innerWidth - e.pageX * speed) / 100;
+            const y = (window.innerHeight - e.pageY * speed) / 100;
+            layer.style.transform = `translateX(${x}px) translateY(${y}px)`;
+        });
+    }
+
+    // TAP TO UNLOCK
+    let tapInterval;
+    let tapLevel = 0;
+    function startTap() {
+        tapInterval = setInterval(() => {
+            tapLevel += 2;
+            document.getElementById('tapProgress').style.height = tapLevel + '%';
+            if (tapLevel >= 100) {
+                clearInterval(tapInterval);
+                document.getElementById('tapText').innerText = "GUTEN APPETIT!";
+                document.getElementById('lockedContent').style.display = 'block';
+                if(navigator.vibrate) navigator.vibrate([50, 20, 50]);
             }
+        }, 20);
+    }
+    function endTap() {
+        clearInterval(tapInterval);
+        if (tapLevel < 100) {
+            tapLevel = 0;
+            document.getElementById('tapProgress').style.height = '0%';
         }
+    }
 
-        function openBooking(type) {
-            document.getElementById('bookingModal').classList.add('active');
-            if(navigator.vibrate) navigator.vibrate([50, 30, 50]);
-        }
+    // TINDER ENGINE (RE-INIT)
+    const rooms = [
+        { name: "Urban Design Room", img: "https://brauhof-wien.at/wp-content/uploads/2021/05/Brauhof-Wien-Zimmer-1.jpg" },
+        { name: "Fünfhaus Suite", img: "https://brauhof-wien.at/wp-content/uploads/2021/05/Brauhof-Wien-Zimmer-2.jpg" }
+    ];
+    function createCard(data) {
+        const card = document.createElement('div');
+        card.className = 't-card';
+        card.innerHTML = `<img src="${data.img}"><div class="t-card-info">${data.name}</div>`;
+        document.getElementById('tinderBox').prepend(card);
+        const h = new Hammer(card);
+        h.on('pan', e => { card.style.transition = 'none'; card.style.transform = `translate(${e.deltaX}px, ${e.deltaY}px) rotate(${e.deltaX/12}deg)`; });
+        h.on('panend', e => {
+            card.style.transition = '0.6s';
+            if (Math.abs(e.deltaX) > 120) {
+                card.style.transform = `translate(${e.deltaX > 0 ? 1000 : -1000}px, 0) rotate(45deg)`;
+                if (e.deltaX > 0) handleMatch();
+                setTimeout(() => { card.remove(); createCard(rooms[Math.floor(Math.random()*rooms.length)]); }, 300);
+            } else { card.style.transform = 'translate(0,0) rotate(0deg)'; }
+        });
+    }
+    rooms.forEach(r => createCard(r));
 
-        function closeModal() {
-            document.getElementById('bookingModal').classList.remove('active');
-        }
+    function handleMatch() {
+        document.getElementById('reward').classList.add('active');
+        document.getElementById('bookBtn').classList.remove('btn-locked');
+        setTimeout(() => document.getElementById('reward').classList.remove('active'), 5000);
+    }
 
-        function cheers() {
-            alert("CODE: BRAUHOF2026 - Zeig das an der Bar für dein Gratis-Bier!");
-            if(navigator.vibrate) navigator.vibrate([50, 100, 50]);
-        }
-    </script>
+    function toggleAtmo() { document.body.classList.toggle('light-mode'); }
+    function cheers(e) { handleMatch(); if(navigator.vibrate) navigator.vibrate(50); }
+</script>
 </body>
 </html>
